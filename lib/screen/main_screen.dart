@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:calculator/controller/calculate_controller.dart';
 import 'package:calculator/controller/theme_controller.dart';
 import 'package:calculator/utils/colors.dart';
@@ -11,8 +10,8 @@ class MainScreen extends StatelessWidget {
   MainScreen({Key? key}) : super(key: key);
 
   final List<String> buttons = [
-    "C", "DEL", "%", "/", "7", "8", "9", "x", "4", "5", "6", "-", "1", "2", "3", "+", "0", ".", "+/-", "=",
-    "^", "√", "(", ")", "log", "ln", "sin", "cos", "tan"
+    "C", "DEL", "%", "/", "7", "8", "9", "x", "4", "5", "6", "-", "1", "2", "3", "+", "0", ".", "^", "=",
+    "√", "(", ")", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv" // Added "inv" button
   ];
 
   @override
@@ -39,17 +38,19 @@ class MainScreen extends StatelessWidget {
     });
   }
 
-  /// Input Section - Enter Numbers
   Widget inPutSection(
       ThemeController themeController, CalculateController controller) {
     List<String> visibleButtons = controller.isScientificMode
         ? [
       "C", "DEL", "%", "/", "^", // First row
-      "7", "8", "9", "x", "√",  // Second row
-      "4", "5", "6", "-", "(",  // Third row
-      "1", "2", "3", "+", ")",  // Fourth row
-      "0", ".", "+/-", "*", "=",     // Fifth row
-      "log", "ln", "sin", "cos", "tan", // Sixth row
+      "7", "8", "9", "*", "√", // Second row
+      "4", "5", "6", "-", "*", // Third row
+      "1", "2", "3", "+", "10^", // Fourth row
+      "0", ".", "=", "(", ")", // Fifth row
+      "log", "ln", getTrigButton(controller, "sin"),
+      getTrigButton(controller, "cos"),
+      getTrigButton(controller, "tan"),
+      "π", "e", "!", "deg", "inv" // Seventh row
     ]
         : buttons.sublist(0, 20); // Show only first 20 buttons in normal mode
 
@@ -81,8 +82,10 @@ class MainScreen extends StatelessWidget {
                   controller.clearInputAndOutput();
                 } else if (visibleButtons[index] == "DEL") {
                   controller.deleteBtnAction();
+                } else if (visibleButtons[index] == "inv") {
+                  controller.toggleInvertedMode();
                 } else {
-                  controller.onBtnTapped(visibleButtons, index);
+                  controller.onBtnTapped(visibleButtons[index]);
                 }
               },
               color: isOperator(visibleButtons[index])
@@ -104,7 +107,6 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  /// Output Section - Show Result
   Widget outPutSection(
       ThemeController themeController, CalculateController controller) {
     return Expanded(
@@ -186,7 +188,6 @@ class MainScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    /// History Icon Button
                     IconButton(
                       icon: Icon(
                         Icons.history,
@@ -198,7 +199,6 @@ class MainScreen extends StatelessWidget {
                       },
                     ),
 
-                    /// Theme switcher button
                     IconButton(
                       icon: Icon(
                         themeController.isDark
@@ -216,33 +216,37 @@ class MainScreen extends StatelessWidget {
               ],
             ),
           ),
-          /// Main Result - user input and output
           Padding(
-            padding: const EdgeInsets.only(right: 20, top: 60),
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    controller.userInput,
-                    style: GoogleFonts.ubuntu(
-                      color: themeController.isDark ? Colors.white : Colors.black,
-                      fontSize: 38,
+            padding: const EdgeInsets.only(right: 20, top: 10, bottom: 20),
+            child: Container(
+              alignment: Alignment.centerRight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      controller.userInput,
+                      style: GoogleFonts.ubuntu(
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                        fontSize: 38,
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  alignment: Alignment.bottomRight,
-                  child: Text(
-                    controller.userOutput,
-                    style: GoogleFonts.ubuntu(
-                      fontWeight: FontWeight.bold,
-                      color: themeController.isDark ? Colors.white : Colors.black,
-                      fontSize: 60,
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      controller.userOutput,
+                      style: GoogleFonts.ubuntu(
+                        fontWeight: FontWeight.bold,
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                        fontSize: 60,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -251,24 +255,16 @@ class MainScreen extends StatelessWidget {
   }
 
   bool isOperator(String x) {
-    if (x == "/" ||
-        x == "x" ||
-        x == "-" ||
-        x == "+" ||
-        x == "=" ||
-        x == "^" ||
-        x == "√" ||
-        x == "%" ||
-        x == "(" ||
-        x == ")" ||
-        x == "*" ||
-        x == "log" ||
-        x == "ln" ||
-        x == "sin" ||
-        x == "cos" ||
-        x == "tan") {
-      return true;
+    return [
+      "/", "x", "-", "+", "=", "^", "√", "%", "(", ")", "*", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv", "sin^-1", "cos^-1", "tan^-1"
+    ].contains(x);
+  }
+
+  String getTrigButton(CalculateController controller, String trigFunc) {
+    if (controller.isInvertedMode) {
+      return "$trigFunc^-1"; // Replace with sin^-1, cos^-1, tan^-1, etc.
+    } else {
+      return trigFunc; // Standard sin, cos, tan
     }
-    return false;
   }
 }
