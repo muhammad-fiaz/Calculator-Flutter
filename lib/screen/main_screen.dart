@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:calculator/controller/calculate_controller.dart';
 import 'package:calculator/controller/theme_controller.dart';
 import 'package:calculator/utils/colors.dart';
@@ -11,26 +10,8 @@ class MainScreen extends StatelessWidget {
   MainScreen({Key? key}) : super(key: key);
 
   final List<String> buttons = [
-    "C",
-    "DEL",
-    "%",
-    "/",
-    "9",
-    "8",
-    "7",
-    "x",
-    "6",
-    "5",
-    "4",
-    "-",
-    "3",
-    "2",
-    "1",
-    "+",
-    "0",
-    ".",
-    "ANS",
-    "=",
+    "C", "DEL", "%", "/", "7", "8", "9", "x", "4", "5", "6", "-", "1", "2", "3", "+", "0", ".", "^", "=",
+    "√", "(", ")", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv" // Added "inv" button
   ];
 
   @override
@@ -48,99 +29,84 @@ class MainScreen extends StatelessWidget {
             GetBuilder<CalculateController>(builder: (context) {
               return outPutSection(themeController, controller);
             }),
-            inPutSection(themeController, controller),
+            GetBuilder<CalculateController>(builder: (context) {
+              return inPutSection(themeController, controller);
+            }),
           ],
         ),
       );
     });
   }
 
-  /// In put Section - Enter Numbers
   Widget inPutSection(
       ThemeController themeController, CalculateController controller) {
+    List<String> visibleButtons = controller.isScientificMode
+        ? [
+      "C", "DEL", "%", "/", "^", // First row
+      "7", "8", "9", "*", "√", // Second row
+      "4", "5", "6", "-", "*", // Third row
+      "1", "2", "3", "+", "10^", // Fourth row
+      "0", ".", "=", "(", ")", // Fifth row
+      "log", "ln", getTrigButton(controller, "sin"),
+      getTrigButton(controller, "cos"),
+      getTrigButton(controller, "tan"),
+      "π", "e", "!", "deg", "inv" // Seventh row
+    ]
+        : buttons.sublist(0, 20); // Show only first 20 buttons in normal mode
+
     return Expanded(
-        flex: 2,
-        child: Container(
-          padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-              color: themeController.isDark
-                  ? DarkColors.sheetBgColor
-                  : LightColors.sheetBgColor,
-              borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30), topRight: Radius.circular(30))),
-          child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: buttons.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4),
-              itemBuilder: (context, index) {
-                switch (index) {
-                /// CLEAR BTN
-                  case 0:
-                    return CustomAppButton(
-                      buttonTapped: () {
-                        controller.clearInputAndOutput();
-                      },
-                      color: themeController.isDark
-                          ? DarkColors.leftOperatorColor
-                          : LightColors.leftOperatorColor,
-                      textColor: themeController.isDark
-                          ? DarkColors.btnBgColor
-                          : LightColors.btnBgColor,
-                      text: buttons[index],
-                    );
-
-                /// DELETE BTN
-                  case 1:
-                    return CustomAppButton(
-                        buttonTapped: () {
-                          controller.deleteBtnAction();
-                        },
-                        color: themeController.isDark
-                            ? DarkColors.leftOperatorColor
-                            : LightColors.leftOperatorColor,
-                        textColor: themeController.isDark
-                            ? DarkColors.btnBgColor
-                            : LightColors.btnBgColor,
-                        text: buttons[index]);
-
-                /// EQUAL BTN
-                  case 19:
-                    return CustomAppButton(
-                        buttonTapped: () {
-                          controller.equalPressed();
-                        },
-                        color: themeController.isDark
-                            ? DarkColors.leftOperatorColor
-                            : LightColors.leftOperatorColor,
-                        textColor: themeController.isDark
-                            ? DarkColors.btnBgColor
-                            : LightColors.btnBgColor,
-                        text: buttons[index]);
-
-                  default:
-                    return CustomAppButton(
-                      buttonTapped: () {
-                        controller.onBtnTapped(buttons, index);
-                      },
-                      color: isOperator(buttons[index])
-                          ? LightColors.operatorColor
-                          : themeController.isDark
-                          ? DarkColors.btnBgColor
-                          : LightColors.btnBgColor,
-                      textColor: isOperator(buttons[index])
-                          ? Colors.white
-                          : themeController.isDark
-                          ? Colors.white
-                          : Colors.black,
-                      text: buttons[index],
-                    );
+      flex: 2,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: themeController.isDark
+              ? DarkColors.sheetBgColor
+              : LightColors.sheetBgColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+        ),
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: visibleButtons.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: controller.isScientificMode ? 5 : 4,
+          ),
+          itemBuilder: (context, index) {
+            return CustomAppButton(
+              buttonTapped: () {
+                if (visibleButtons[index] == "=") {
+                  controller.equalPressed();
+                } else if (visibleButtons[index] == "C") {
+                  controller.clearInputAndOutput();
+                } else if (visibleButtons[index] == "DEL") {
+                  controller.deleteBtnAction();
+                } else if (visibleButtons[index] == "inv") {
+                  controller.toggleInvertedMode();
+                } else {
+                  controller.onBtnTapped(visibleButtons[index]);
                 }
-              }),
-        ));
+              },
+              color: isOperator(visibleButtons[index])
+                  ? LightColors.operatorColor
+                  : themeController.isDark
+                  ? DarkColors.btnBgColor
+                  : LightColors.btnBgColor,
+              textColor: isOperator(visibleButtons[index])
+                  ? Colors.white
+                  : themeController.isDark
+                  ? Colors.white
+                  : Colors.black,
+              text: visibleButtons[index],
+              isScientificMode: controller.isScientificMode,
+            );
+          },
+        ),
+      ),
+    );
   }
 
-  /// Out put Section - Show Result
   Widget outPutSection(
       ThemeController themeController, CalculateController controller) {
     return Expanded(
@@ -148,70 +114,139 @@ class MainScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          /// Row for icons: Theme switcher and History
-
           Padding(
-            padding: const EdgeInsets.only(top: 20, right: 10),
+            padding: const EdgeInsets.only(top: 20, right: 10, left: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                /// History Icon Button
-                IconButton(
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'Scientific Mode') {
+                      controller.toggleScientificMode();
+                    }
+                    // Add other options here
+                  },
+                  itemBuilder: (BuildContext context) =>
+                  <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'Scientific Mode',
+                      child: Row(
+                        children: [
+                          Text('Scientific Mode',
+                              style: TextStyle(
+                                  color: themeController.isDark
+                                      ? Colors.white
+                                      : Colors.black)),
+                          const Spacer(),
+                          Icon(
+                            controller.isScientificMode
+                                ? Icons.check_box
+                                : Icons.check_box_outline_blank,
+                            color: themeController.isDark
+                                ? Colors.white
+                                : Colors.black,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'About',
+                      child: Text('About',
+                          style: TextStyle(
+                              color: themeController.isDark
+                                  ? Colors.white
+                                  : Colors.black)),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'Settings',
+                      child: Text('Settings',
+                          style: TextStyle(
+                              color: themeController.isDark
+                                  ? Colors.white
+                                  : Colors.black)),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'Help',
+                      child: Text('Help',
+                          style: TextStyle(
+                              color: themeController.isDark
+                                  ? Colors.white
+                                  : Colors.black)),
+                    ),
+                  ],
                   icon: Icon(
-                    Icons.history,
+                    Icons.more_vert,
                     size: 25,
                     color: themeController.isDark ? Colors.white : Colors.black,
                   ),
-                  onPressed: () {
-                    // Add your history button functionality here
-                  },
+                  color: themeController.isDark
+                      ? DarkColors.sheetBgColor
+                      : LightColors.sheetBgColor,
+                  offset: const Offset(0, 40), // Adjusts the position of the menu
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.history,
+                        size: 25,
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                      ),
+                      onPressed: () {
+                        // Add your history button functionality here
+                      },
+                    ),
 
-
-                /// Theme switcher button
-                IconButton(
-                  icon: Icon(
-                    themeController.isDark
-                        ? Icons.nightlight_round_outlined
-                        : Icons.wb_sunny_outlined,
-                    size: 25,
-                    color: themeController.isDark ? Colors.white : Colors.black,
-                  ),
-                  onPressed: () {
-                    themeController.toggleTheme();
-                  },
+                    IconButton(
+                      icon: Icon(
+                        themeController.isDark
+                            ? Icons.nightlight_round_outlined
+                            : Icons.wb_sunny_outlined,
+                        size: 25,
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                      ),
+                      onPressed: () {
+                        themeController.toggleTheme();
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-
-          /// Main Result - user input and output
           Padding(
-            padding: const EdgeInsets.only(right: 20, top: 60),
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    controller.userInput,
-                    style: GoogleFonts.ubuntu(
-                      color: themeController.isDark ? Colors.white : Colors.black,
-                      fontSize: 38,
+            padding: const EdgeInsets.only(right: 20, top: 10, bottom: 20),
+            child: Container(
+              alignment: Alignment.centerRight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      controller.userInput,
+                      style: GoogleFonts.ubuntu(
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                        fontSize: 38,
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  alignment: Alignment.bottomRight,
-                  child: Text(
-                    controller.userOutput,
-                    style: GoogleFonts.ubuntu(
-                      fontWeight: FontWeight.bold,
-                      color: themeController.isDark ? Colors.white : Colors.black,
-                      fontSize: 60,
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      controller.userOutput,
+                      style: GoogleFonts.ubuntu(
+                        fontWeight: FontWeight.bold,
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                        fontSize: 60,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -219,16 +254,17 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  /// is Operator Check
-  bool isOperator(String y) {
-    if (y == "%" ||
-        y == "/" ||
-        y == "x" ||
-        y == "-" ||
-        y == "+" ||
-        y == "=") {
-      return true;
+  bool isOperator(String x) {
+    return [
+      "/", "x", "-", "+", "=", "^", "√", "%", "(", ")", "*", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv", "sin^-1", "cos^-1", "tan^-1"
+    ].contains(x);
+  }
+
+  String getTrigButton(CalculateController controller, String trigFunc) {
+    if (controller.isInvertedMode) {
+      return "$trigFunc^-1"; // Replace with sin^-1, cos^-1, tan^-1, etc.
+    } else {
+      return trigFunc; // Standard sin, cos, tan
     }
-    return false;
   }
 }
