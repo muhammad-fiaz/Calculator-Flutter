@@ -4,11 +4,15 @@ import 'package:math_expressions/math_expressions.dart';
 class CalculateController extends GetxController {
   var userInput = "";
   var userOutput = "";
+  var isScientificMode = false;
 
   /// Equal Button Pressed Func
   equalPressed() {
     String userInputFC = userInput;
     userInputFC = userInputFC.replaceAll("x", "*");
+    userInputFC = userInputFC.replaceAll("√", "sqrt");
+    userInputFC = userInputFC.replaceAll("^", "^");
+
     Parser p = Parser();
 
     try {
@@ -42,6 +46,12 @@ class CalculateController extends GetxController {
   /// on Number Button Tapped
   onBtnTapped(List<String> buttons, int index) {
     userInput += buttons[index];
+    update();
+  }
+
+  /// Toggle Scientific Mode
+  toggleScientificMode() {
+    isScientificMode = !isScientificMode;
     update();
   }
 }
