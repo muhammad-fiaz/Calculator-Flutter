@@ -141,50 +141,86 @@ class MainScreen extends StatelessWidget {
   }
 
   /// Out put Section - Show Result
-  Widget outPutSection(
-      ThemeController themeController, CalculateController controller) {
+  Widget outPutSection(ThemeController themeController, CalculateController controller) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          /// Row for icons: Theme switcher and History
-
           Padding(
-            padding: const EdgeInsets.only(top: 20, right: 10),
+            padding: const EdgeInsets.only(top: 20, right: 10, left: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                /// History Icon Button
-                IconButton(
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'About':
+                      // Handle About action
+                        break;
+                      case 'Settings':
+                      // Handle Settings action
+                        break;
+                      case 'Help':
+                      // Handle Help action
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'About',
+                      child: Text('About', style: TextStyle(color: themeController.isDark ? Colors.white : Colors.black)),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'Settings',
+                      child: Text('Settings', style: TextStyle(color: themeController.isDark ? Colors.white : Colors.black)),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'Help',
+                      child: Text('Help', style: TextStyle(color: themeController.isDark ? Colors.white : Colors.black)),
+                    ),
+                  ],
                   icon: Icon(
-                    Icons.history,
+                    Icons.more_vert,
                     size: 25,
                     color: themeController.isDark ? Colors.white : Colors.black,
                   ),
-                  onPressed: () {
-                    // Add your history button functionality here
-                  },
+                  color: themeController.isDark ? DarkColors.sheetBgColor : LightColors.sheetBgColor,
+                  offset: const Offset(0, 40), // Adjusts the position of the menu
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    /// History Icon Button
+                    IconButton(
+                      icon: Icon(
+                        Icons.history,
+                        size: 25,
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                      ),
+                      onPressed: () {
+                        // Add your history button functionality here
+                      },
+                    ),
 
-
-                /// Theme switcher button
-                IconButton(
-                  icon: Icon(
-                    themeController.isDark
-                        ? Icons.nightlight_round_outlined
-                        : Icons.wb_sunny_outlined,
-                    size: 25,
-                    color: themeController.isDark ? Colors.white : Colors.black,
-                  ),
-                  onPressed: () {
-                    themeController.toggleTheme();
-                  },
+                    /// Theme switcher button
+                    IconButton(
+                      icon: Icon(
+                        themeController.isDark
+                            ? Icons.nightlight_round_outlined
+                            : Icons.wb_sunny_outlined,
+                        size: 25,
+                        color: themeController.isDark ? Colors.white : Colors.black,
+                      ),
+                      onPressed: () {
+                        themeController.toggleTheme();
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-
           /// Main Result - user input and output
           Padding(
             padding: const EdgeInsets.only(right: 20, top: 60),
@@ -218,6 +254,8 @@ class MainScreen extends StatelessWidget {
       ),
     );
   }
+
+
 
   /// is Operator Check
   bool isOperator(String y) {
