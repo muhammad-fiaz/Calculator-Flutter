@@ -1,22 +1,92 @@
-import 'package:calculator/screen/history_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:calculator/controller/calculate_controller.dart';
-import 'package:calculator/controller/theme_controller.dart';
-import 'package:calculator/utils/colors.dart';
-import 'package:calculator/widget/button.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:calculator/screen/about_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
-class MainScreen extends StatelessWidget {
+import '../controller/calculate_controller.dart';
+import '../controller/theme_controller.dart';
+import '../utils/colors.dart';
+import '../widget/button.dart';
+import '../screen/history_screen.dart';
+import '../screen/about_screen.dart';
+
+class MainScreen extends StatefulWidget {
   MainScreen({Key? key}) : super(key: key);
 
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  late SharedPreferences _prefs;
+  bool _showBetaNotice = true;
+
+  // Define buttons list here
   final List<String> buttons = [
     "C", "DEL", "%", "/", "7", "8", "9", "x", "4", "5", "6", "-", "1", "2", "3", "+", "0", ".", "^", "=",
     "√", "(", ")", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv"
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    initSharedPreferences();
+  }
+
+  void initSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    _showBetaNotice = _prefs.getBool('showBetaNotice') ?? true;
+
+    // Show beta notice dialog if it hasn't been shown before
+    if (_showBetaNotice) {
+      showBetaNotice();
+    }
+  }
+
+  void showBetaNotice() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        var themeController = Get.find<ThemeController>(); // Assuming you have access to theme controller
+
+        return AlertDialog(
+          backgroundColor: themeController.isDark ? DarkColors.sheetBgColor : LightColors.sheetBgColor,
+          title: Text(
+            "Notice",
+            style: TextStyle(
+              color: themeController.isDark ? Colors.white : Colors.black, // Title text color based on theme
+            ),
+          ),
+          content: Text(
+            "This app is in beta and may have bugs. You can report issues on GitHub.",
+            style: TextStyle(
+              color: themeController.isDark ? Colors.white : Colors.black, // Content text color based on theme
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Store in SharedPreferences that notice has been displayed
+                _prefs.setBool('showBetaNotice', false);
+                setState(() {
+                  _showBetaNotice = false;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "OK",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
