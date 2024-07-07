@@ -1,3 +1,4 @@
+import 'package:calculator/screen/history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:calculator/controller/calculate_controller.dart';
 import 'package:calculator/controller/theme_controller.dart';
@@ -207,7 +208,7 @@ class MainScreen extends StatelessWidget {
                         color: themeController.isDark ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
-                        // Add your history button functionality here
+                        Get.to(() => HistoryScreen());
                       },
                     ),
                     IconButton(
