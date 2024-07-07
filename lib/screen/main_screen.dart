@@ -71,7 +71,6 @@ class MainScreen extends StatelessWidget {
           ),
         ),
         child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
           itemCount: visibleButtons.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: controller.isScientificMode ? 5 : 4,
@@ -146,10 +145,11 @@ class MainScreen extends StatelessWidget {
                         );
                       }
                     }
-                    // Add other options here
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    PopupMenuItem<String>(
+                  /*
+                   This code is commented out because the Scientific Mode option is still in development.
+                   PopupMenuItem<String>(
                       value: 'Scientific Mode',
                       child: Row(
                         children: [
@@ -170,7 +170,7 @@ class MainScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
+                    ),*/
                     PopupMenuItem<String>(
                       value: 'About',
                       child: Text('About',

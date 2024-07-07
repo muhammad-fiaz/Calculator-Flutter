@@ -15,7 +15,7 @@ class CalculateController extends GetxController {
     String userInputFC = userInput;
     userInputFC = userInputFC.replaceAll("x", "*");
     userInputFC = userInputFC.replaceAll("√", "sqrt");
-    userInputFC = userInputFC.replaceAll("^", "pow");
+    userInputFC = userInputFC.replaceAll("^", "^");
     userInputFC = userInputFC.replaceAll("π", pi.toString());
     userInputFC = userInputFC.replaceAll("|", "abs");
     userInputFC = userInputFC.replaceAll("!", "factorial");
@@ -42,7 +42,8 @@ class CalculateController extends GetxController {
     } catch (e) {
       userOutput = "Syntax Error";
     }
-// Save to history
+
+    // Save to history
     HistoryModel history = HistoryModel(
       expression: userInput,
       result: userOutput,
@@ -51,10 +52,10 @@ class CalculateController extends GetxController {
 
     update();
   }
+
   Future<List<HistoryModel>> fetchHistory() async {
     return await databaseHelper.fetchAllHistory();
   }
-
 
   void clearInputAndOutput() {
     userInput = "";
@@ -88,6 +89,5 @@ class CalculateController extends GetxController {
     userInput = input;
     userOutput = output;
     update(); // Notify listeners of the change
-
   }
 }
