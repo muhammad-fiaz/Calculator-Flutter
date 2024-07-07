@@ -1,6 +1,25 @@
+<div align="center">
+
 # Calculator
 
+![Preview](https://github.com/muhammad-fiaz/Calculator-Flutter/assets/75434191/4570198a-e22d-415a-8ee4-93af6f870f86)
+
+[![GitHub issues](https://img.shields.io/github/issues/muhammad-fiaz/Calculator-Flutter)](https://github.com/muhammad-fiaz/Calculator-Flutter/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/muhammad-fiaz/Calculator-Flutter)](https://github.com/muhammad-fiaz/Calculator-Flutter/pulls)
+[![GitHub contributors](https://img.shields.io/github/contributors/muhammad-fiaz/Calculator-Flutter)](https://github.com/muhammad-fiaz/Calculator-Flutter/graphs/contributors)
+[![GitHub last commit](https://img.shields.io/github/last-commit/muhammad-fiaz/Calculator-Flutter)](https://github.com/muhammad-fiaz/Calculator-Flutter/commits/main)
+[![GitHub license](https://img.shields.io/github/license/muhammad-fiaz/Calculator-Flutter)](https://github.com/muhammad-fiaz/Calculator-Flutter/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/muhammad-fiaz/Calculator-Flutter?style=social)](https://github.com/muhammad-fiaz/Calculator-Flutter/stargazers)
+
+[![GitHub maintainer](https://img.shields.io/badge/maintainer-Muhammad%20Fiaz-blue)](https://github.com/muhammad-fiaz)
+[![GitHub followers](https://img.shields.io/github/followers/muhammad-fiaz?label=Follow)](https://github.com/muhammad-fiaz?tab=followers)
+
+</div>
+
 Calculator is your essential tool for all your mathematical needs. With a clean and user-friendly interface, this app is designed to make both simple and complex calculations easy and efficient. Whether you're a student, professional, or just need quick calculations on the go, Calculator provides accurate results every time. Powered by Flutter, it offers a smooth and reliable experience across all your devices. Simplify your math with Calculator!
+
+
+> This app is still in development including features like scientific mode
 
 ## Getting Started
 
