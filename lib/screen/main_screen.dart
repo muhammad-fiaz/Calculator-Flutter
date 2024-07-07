@@ -1,3 +1,4 @@
+import 'package:calculator/screen/history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:calculator/controller/calculate_controller.dart';
 import 'package:calculator/controller/theme_controller.dart';
@@ -5,13 +6,16 @@ import 'package:calculator/utils/colors.dart';
 import 'package:calculator/widget/button.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:calculator/screen/about_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({Key? key}) : super(key: key);
 
   final List<String> buttons = [
     "C", "DEL", "%", "/", "7", "8", "9", "x", "4", "5", "6", "-", "1", "2", "3", "+", "0", ".", "^", "=",
-    "√", "(", ")", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv" // Added "inv" button
+    "√", "(", ")", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv"
+
   ];
 
   @override
@@ -19,17 +23,18 @@ class MainScreen extends StatelessWidget {
     var controller = Get.find<CalculateController>();
     var themeController = Get.find<ThemeController>();
 
-    return GetBuilder<ThemeController>(builder: (context) {
+    return GetBuilder<ThemeController>(builder: (themeContext) {
       return Scaffold(
         backgroundColor: themeController.isDark
             ? DarkColors.scaffoldBgColor
             : LightColors.scaffoldBgColor,
         body: Column(
           children: [
-            GetBuilder<CalculateController>(builder: (context) {
+            GetBuilder<CalculateController>(builder: (calcContext) {
               return outPutSection(themeController, controller);
             }),
-            GetBuilder<CalculateController>(builder: (context) {
+            GetBuilder<CalculateController>(builder: (calcContext) {
+
               return inPutSection(themeController, controller);
             }),
           ],
@@ -42,17 +47,18 @@ class MainScreen extends StatelessWidget {
       ThemeController themeController, CalculateController controller) {
     List<String> visibleButtons = controller.isScientificMode
         ? [
-      "C", "DEL", "%", "/", "^", // First row
-      "7", "8", "9", "*", "√", // Second row
-      "4", "5", "6", "-", "*", // Third row
-      "1", "2", "3", "+", "10^", // Fourth row
-      "0", ".", "=", "(", ")", // Fifth row
+      "C", "DEL", "%", "/", "^",
+      "7", "8", "9", "*", "√",
+      "4", "5", "6", "-", "*",
+      "1", "2", "3", "+", "10^",
+      "0", ".", "=", "(", ")",
       "log", "ln", getTrigButton(controller, "sin"),
       getTrigButton(controller, "cos"),
       getTrigButton(controller, "tan"),
-      "π", "e", "!", "deg", "inv" // Seventh row
+      "π", "e", "!", "deg", "inv"
     ]
-        : buttons.sublist(0, 20); // Show only first 20 buttons in normal mode
+        : buttons.sublist(0, 20);
+
 
     return Expanded(
       flex: 2,
@@ -68,7 +74,7 @@ class MainScreen extends StatelessWidget {
           ),
         ),
         child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
+
           itemCount: visibleButtons.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: controller.isScientificMode ? 5 : 4,
@@ -123,12 +129,32 @@ class MainScreen extends StatelessWidget {
                   onSelected: (value) {
                     if (value == 'Scientific Mode') {
                       controller.toggleScientificMode();
+
+                    } else if (value == 'About') {
+                      Navigator.push(
+                        Get.context!,
+                        MaterialPageRoute(builder: (context) => const AboutPage()),
+                      );
+                    } else if (value == 'Help') {
+                      try {
+                        launch(
+                            'https://github.com/muhammad-fiaz/Calculator-Flutter');
+                      }
+                      catch (e) {
+                        Get.snackbar(
+                          'Error',
+                          'Could not launch URL',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      }
                     }
-                    // Add other options here
                   },
-                  itemBuilder: (BuildContext context) =>
-                  <PopupMenuEntry<String>>[
-                    PopupMenuItem<String>(
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  /*
+                   This code is commented out because the Scientific Mode option is still in development.
+                   PopupMenuItem<String>(
                       value: 'Scientific Mode',
                       child: Row(
                         children: [
@@ -149,7 +175,9 @@ class MainScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
+
+                    ),*/
+
                     PopupMenuItem<String>(
                       value: 'About',
                       child: Text('About',
@@ -159,14 +187,8 @@ class MainScreen extends StatelessWidget {
                                   : Colors.black)),
                     ),
                     PopupMenuItem<String>(
-                      value: 'Settings',
-                      child: Text('Settings',
-                          style: TextStyle(
-                              color: themeController.isDark
-                                  ? Colors.white
-                                  : Colors.black)),
-                    ),
-                    PopupMenuItem<String>(
+
+
                       value: 'Help',
                       child: Text('Help',
                           style: TextStyle(
@@ -195,7 +217,8 @@ class MainScreen extends StatelessWidget {
                         color: themeController.isDark ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
-                        // Add your history button functionality here
+
+                        Get.to(() => const HistoryScreen());
                       },
                     ),
 

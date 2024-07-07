@@ -1,3 +1,5 @@
+import 'package:calculator/controller/database_helper.dart';
+import 'package:calculator/models/history_model.dart';
 import 'package:get/get.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'dart:math';
@@ -7,12 +9,13 @@ class CalculateController extends GetxController {
   var userOutput = "";
   var isScientificMode = false;
   var isInvertedMode = false; // Added for inverted trig functions
+  DatabaseHelper databaseHelper = DatabaseHelper();
 
-  void equalPressed() {
+  Future<void> equalPressed() async {
     String userInputFC = userInput;
     userInputFC = userInputFC.replaceAll("x", "*");
     userInputFC = userInputFC.replaceAll("√", "sqrt");
-    userInputFC = userInputFC.replaceAll("^", "pow");
+    userInputFC = userInputFC.replaceAll("^", "^");
     userInputFC = userInputFC.replaceAll("π", pi.toString());
     userInputFC = userInputFC.replaceAll("|", "abs");
     userInputFC = userInputFC.replaceAll("!", "factorial");
@@ -40,8 +43,21 @@ class CalculateController extends GetxController {
       userOutput = "Syntax Error";
     }
 
+    // Save to history
+    HistoryModel history = HistoryModel(
+      expression: userInput,
+      result: userOutput,
+    );
+    await databaseHelper.insertHistory(history);
+
+
     update();
   }
+
+  Future<List<HistoryModel>> fetchHistory() async {
+    return await databaseHelper.fetchAllHistory();
+  }
+
 
   void clearInputAndOutput() {
     userInput = "";
@@ -70,4 +86,11 @@ class CalculateController extends GetxController {
     isInvertedMode = !isInvertedMode;
     update();
   }
+
+  void setInputFromHistory(String input, String output) {
+    userInput = input;
+    userOutput = output;
+    update(); // Notify listeners of the change
+  }
 }
+

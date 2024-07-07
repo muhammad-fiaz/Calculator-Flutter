@@ -39,6 +39,9 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_advanced_switch: ^3.0.1
   get: ^4.3.8
+  url_launcher: ^6.0.20
+  path_provider: ^2.0.2
+  sqflite: ^2.0.0+4
 
 dev_dependencies:
   flutter_test:
