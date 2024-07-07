@@ -50,12 +50,14 @@ class CalculateController extends GetxController {
     );
     await databaseHelper.insertHistory(history);
 
+
     update();
   }
 
   Future<List<HistoryModel>> fetchHistory() async {
     return await databaseHelper.fetchAllHistory();
   }
+
 
   void clearInputAndOutput() {
     userInput = "";
@@ -91,3 +93,4 @@ class CalculateController extends GetxController {
     update(); // Notify listeners of the change
   }
 }
+

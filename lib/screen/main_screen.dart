@@ -15,6 +15,7 @@ class MainScreen extends StatelessWidget {
   final List<String> buttons = [
     "C", "DEL", "%", "/", "7", "8", "9", "x", "4", "5", "6", "-", "1", "2", "3", "+", "0", ".", "^", "=",
     "√", "(", ")", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv"
+
   ];
 
   @override
@@ -33,6 +34,7 @@ class MainScreen extends StatelessWidget {
               return outPutSection(themeController, controller);
             }),
             GetBuilder<CalculateController>(builder: (calcContext) {
+
               return inPutSection(themeController, controller);
             }),
           ],
@@ -57,6 +59,7 @@ class MainScreen extends StatelessWidget {
     ]
         : buttons.sublist(0, 20);
 
+
     return Expanded(
       flex: 2,
       child: Container(
@@ -71,6 +74,7 @@ class MainScreen extends StatelessWidget {
           ),
         ),
         child: GridView.builder(
+
           itemCount: visibleButtons.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: controller.isScientificMode ? 5 : 4,
@@ -125,6 +129,7 @@ class MainScreen extends StatelessWidget {
                   onSelected: (value) {
                     if (value == 'Scientific Mode') {
                       controller.toggleScientificMode();
+
                     } else if (value == 'About') {
                       Navigator.push(
                         Get.context!,
@@ -170,7 +175,9 @@ class MainScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+
                     ),*/
+
                     PopupMenuItem<String>(
                       value: 'About',
                       child: Text('About',
@@ -180,6 +187,8 @@ class MainScreen extends StatelessWidget {
                                   : Colors.black)),
                     ),
                     PopupMenuItem<String>(
+
+
                       value: 'Help',
                       child: Text('Help',
                           style: TextStyle(
@@ -208,9 +217,11 @@ class MainScreen extends StatelessWidget {
                         color: themeController.isDark ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
+
                         Get.to(() => const HistoryScreen());
                       },
                     ),
+
                     IconButton(
                       icon: Icon(
                         themeController.isDark
