@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:calculator/screen/about_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({Key? key}) : super(key: key);
@@ -15,7 +16,6 @@ class MainScreen extends StatelessWidget {
   final List<String> buttons = [
     "C", "DEL", "%", "/", "7", "8", "9", "x", "4", "5", "6", "-", "1", "2", "3", "+", "0", ".", "^", "=",
     "√", "(", ")", "log", "ln", "sin", "cos", "tan", "π", "e", "10^", "!", "deg", "inv"
-
   ];
 
   @override
@@ -34,7 +34,6 @@ class MainScreen extends StatelessWidget {
               return outPutSection(themeController, controller);
             }),
             GetBuilder<CalculateController>(builder: (calcContext) {
-
               return inPutSection(themeController, controller);
             }),
           ],
@@ -43,8 +42,7 @@ class MainScreen extends StatelessWidget {
     });
   }
 
-  Widget inPutSection(
-      ThemeController themeController, CalculateController controller) {
+  Widget inPutSection(ThemeController themeController, CalculateController controller) {
     List<String> visibleButtons = controller.isScientificMode
         ? [
       "C", "DEL", "%", "/", "^",
@@ -58,7 +56,6 @@ class MainScreen extends StatelessWidget {
       "π", "e", "!", "deg", "inv"
     ]
         : buttons.sublist(0, 20);
-
 
     return Expanded(
       flex: 2,
@@ -74,7 +71,6 @@ class MainScreen extends StatelessWidget {
           ),
         ),
         child: GridView.builder(
-
           itemCount: visibleButtons.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: controller.isScientificMode ? 5 : 4,
@@ -82,16 +78,20 @@ class MainScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             return CustomAppButton(
               buttonTapped: () {
-                if (visibleButtons[index] == "=") {
-                  controller.equalPressed();
-                } else if (visibleButtons[index] == "C") {
-                  controller.clearInputAndOutput();
-                } else if (visibleButtons[index] == "DEL") {
-                  controller.deleteBtnAction();
-                } else if (visibleButtons[index] == "inv") {
-                  controller.toggleInvertedMode();
-                } else {
-                  controller.onBtnTapped(visibleButtons[index]);
+                try {
+                  if (visibleButtons[index] == "=") {
+                    controller.equalPressed();
+                  } else if (visibleButtons[index] == "C") {
+                    controller.clearInputAndOutput();
+                  } else if (visibleButtons[index] == "DEL") {
+                    controller.deleteBtnAction();
+                  } else if (visibleButtons[index] == "inv") {
+                    controller.toggleInvertedMode();
+                  } else {
+                    controller.onBtnTapped(visibleButtons[index]);
+                  }
+                } catch (e, stackTrace) {
+                  FirebaseCrashlytics.instance.recordError(e, stackTrace);
                 }
               },
               color: isOperator(visibleButtons[index])
@@ -113,8 +113,7 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget outPutSection(
-      ThemeController themeController, CalculateController controller) {
+  Widget outPutSection(ThemeController themeController, CalculateController controller) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -127,74 +126,50 @@ class MainScreen extends StatelessWidget {
               children: [
                 PopupMenuButton<String>(
                   onSelected: (value) {
-                    if (value == 'Scientific Mode') {
-                      controller.toggleScientificMode();
-
-                    } else if (value == 'About') {
-                      Navigator.push(
-                        Get.context!,
-                        MaterialPageRoute(builder: (context) => const AboutPage()),
-                      );
-                    } else if (value == 'Help') {
-                      try {
-                        launch(
-                            'https://github.com/muhammad-fiaz/Calculator-Flutter');
-                      }
-                      catch (e) {
-                        Get.snackbar(
-                          'Error',
-                          'Could not launch URL',
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.red,
-                          colorText: Colors.white,
+                    try {
+                      if (value == 'Scientific Mode') {
+                        controller.toggleScientificMode();
+                      } else if (value == 'About') {
+                        Navigator.push(
+                          Get.context!,
+                          MaterialPageRoute(builder: (context) => const AboutPage()),
                         );
+                      } else if (value == 'Help') {
+                        try {
+                          launch('https://github.com/muhammad-fiaz/Calculator-Flutter');
+                        } catch (e) {
+                          Get.snackbar(
+                            'Error',
+                            'Could not launch URL',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                          );
+                          FirebaseCrashlytics.instance.recordError(e, null);
+                        }
                       }
+                    } catch (e, stackTrace) {
+                      FirebaseCrashlytics.instance.recordError(e, stackTrace);
                     }
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  /*
-                   This code is commented out because the Scientific Mode option is still in development.
-                   PopupMenuItem<String>(
-                      value: 'Scientific Mode',
-                      child: Row(
-                        children: [
-                          Text('Scientific Mode',
-                              style: TextStyle(
-                                  color: themeController.isDark
-                                      ? Colors.white
-                                      : Colors.black)),
-                          const Spacer(),
-                          Icon(
-                            controller.isScientificMode
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank,
-                            color: themeController.isDark
-                                ? Colors.white
-                                : Colors.black,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-
-                    ),*/
-
                     PopupMenuItem<String>(
                       value: 'About',
-                      child: Text('About',
-                          style: TextStyle(
-                              color: themeController.isDark
-                                  ? Colors.white
-                                  : Colors.black)),
+                      child: Text(
+                        'About',
+                        style: TextStyle(
+                          color: themeController.isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
                     ),
                     PopupMenuItem<String>(
-
-
                       value: 'Help',
-                      child: Text('Help',
-                          style: TextStyle(
-                              color: themeController.isDark
-                                  ? Colors.white
-                                  : Colors.black)),
+                      child: Text(
+                        'Help',
+                        style: TextStyle(
+                          color: themeController.isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
                     ),
                   ],
                   icon: Icon(
@@ -217,11 +192,13 @@ class MainScreen extends StatelessWidget {
                         color: themeController.isDark ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
-
-                        Get.to(() => const HistoryScreen());
+                        try {
+                          Get.to(() => const HistoryScreen());
+                        } catch (e, stackTrace) {
+                          FirebaseCrashlytics.instance.recordError(e, stackTrace);
+                        }
                       },
                     ),
-
                     IconButton(
                       icon: Icon(
                         themeController.isDark
@@ -231,7 +208,11 @@ class MainScreen extends StatelessWidget {
                         color: themeController.isDark ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
-                        themeController.toggleTheme();
+                        try {
+                          themeController.toggleTheme();
+                        } catch (e, stackTrace) {
+                          FirebaseCrashlytics.instance.recordError(e, stackTrace);
+                        }
                       },
                     ),
                   ],

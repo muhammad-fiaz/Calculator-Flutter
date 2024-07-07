@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:calculator/controller/theme_controller.dart';
 import 'package:calculator/utils/colors.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class LicensePage extends StatelessWidget {
   const LicensePage({Key? key}) : super(key: key);
@@ -32,8 +33,39 @@ class LicensePage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Text(
-            '''
+          child: FutureBuilder<String>(
+            future: _loadLicenseText(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                // Handle error using Firebase Crashlytics
+                FirebaseCrashlytics.instance.recordError(snapshot.error!, StackTrace.current);
+                return const Center(
+                  child: Text('Error loading license text. Please try again later.'),
+                );
+              } else {
+                return Text(
+                  snapshot.data ?? '',
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 16,
+                    color: themeController.isDark ? Colors.white : Colors.black,
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<String> _loadLicenseText() async {
+    // Simulating an asynchronous load of license text (replace with actual loading mechanism)
+    await Future.delayed(const Duration(seconds: 1)); // Simulating a delay
+
+    // Replace this with your actual license text loading mechanism
+    return '''
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -235,14 +267,6 @@ class LicensePage extends StatelessWidget {
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-''',
-            style: GoogleFonts.ubuntu(
-              fontSize: 16,
-              color: themeController.isDark ? Colors.white : Colors.black,
-            ),
-          ),
-        ),
-      ),
-    );
+''';
   }
 }

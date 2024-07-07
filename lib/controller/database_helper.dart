@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:calculator/models/history_model.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -18,32 +19,52 @@ class DatabaseHelper {
   }
 
   Future<Database> initDb() async {
-    String path = await getDatabasesPath();
-    path = join(path, 'calculator.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    try {
+      String path = await getDatabasesPath();
+      path = join(path, 'calculator.db');
+      return await openDatabase(path, version: 1, onCreate: _onCreate);
+    } catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+      rethrow; // Rethrow the error after recording it
+    }
   }
 
   void _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE history(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        expression TEXT,
-        result TEXT
-      )
-    ''');
+    try {
+      await db.execute('''
+        CREATE TABLE history(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          expression TEXT,
+          result TEXT
+        )
+      ''');
+    } catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+      rethrow; // Rethrow the error after recording it
+    }
   }
 
   Future<int> insertHistory(HistoryModel history) async {
-    var client = await db;
-    return client.insert('history', history.toMap());
+    try {
+      var client = await db;
+      return await client.insert('history', history.toMap());
+    } catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+      return -1; // Return a failure indicator or handle as needed
+    }
   }
 
   Future<List<HistoryModel>> fetchAllHistory() async {
-    var client = await db;
-    var res = await client.query('history');
-    if (res.isNotEmpty) {
-      return res.map((history) => HistoryModel.fromMap(history)).toList();
+    try {
+      var client = await db;
+      var res = await client.query('history');
+      if (res.isNotEmpty) {
+        return res.map((history) => HistoryModel.fromMap(history)).toList();
+      }
+      return [];
+    } catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+      return []; // Return empty list or handle as needed
     }
-    return [];
   }
 }

@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-/* Theme Controller */
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
 class ThemeController extends GetxController {
   bool isDark = true;
   final switcherController = ValueNotifier<bool>(false);
 
-  lightTheme() {
-    isDark = false;
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-    update();
+  void lightTheme() {
+    try {
+      isDark = false;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+      update();
+    } catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+    }
   }
 
-  darkTheme() {
-    isDark = true;
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-    update();
+  void darkTheme() {
+    try {
+      isDark = true;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+      update();
+    } catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+    }
   }
 
   @override
@@ -31,7 +40,11 @@ class ThemeController extends GetxController {
   }
 
   void toggleTheme() {
-    isDark = !isDark; // Toggle the boolean value
-    update();
+    try {
+      isDark = !isDark; // Toggle the boolean value
+      update();
+    } catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
+    }
   }
 }
