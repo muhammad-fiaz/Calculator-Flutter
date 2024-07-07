@@ -83,4 +83,11 @@ class CalculateController extends GetxController {
     isInvertedMode = !isInvertedMode;
     update();
   }
+
+  void setInputFromHistory(String input, String output) {
+    userInput = input;
+    userOutput = output;
+    update(); // Notify listeners of the change
+
+  }
 }

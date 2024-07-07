@@ -208,7 +208,7 @@ class MainScreen extends StatelessWidget {
                         color: themeController.isDark ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
-                        Get.to(() => HistoryScreen());
+                        Get.to(() => const HistoryScreen());
                       },
                     ),
                     IconButton(
