@@ -5,6 +5,7 @@ import 'package:calculator/controller/theme_controller.dart';
 import 'package:calculator/utils/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:calculator/screen/license_screen.dart' as license;
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -52,10 +53,9 @@ class AboutPage extends StatelessWidget {
                 GestureDetector(
                   onTap: () async {
                     const url = 'https://github.com/muhammad-fiaz/Calculator-Flutter/releases';
-                    try{
-                      launch(url);
-                    }
-                    catch(e){
+                    try {
+                      await launch(url);
+                    } catch (e) {
                       Get.snackbar(
                         'Error',
                         'Could not launch URL',
@@ -63,9 +63,7 @@ class AboutPage extends StatelessWidget {
                         backgroundColor: Colors.red,
                         colorText: Colors.white,
                       );
-                      throw 'Could not launch $url';
-
-
+                      FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
                     }
                   },
                   child: Row(
@@ -135,20 +133,17 @@ class AboutPage extends StatelessWidget {
             GestureDetector(
               onTap: () async {
                 const url = 'https://github.com/muhammad-fiaz/Calculator-Flutter/issues';
-                try{
-    launch(url);
-    }
-    catch(e){
-    Get.snackbar(
-                        'Error',
-                        'Could not launch URL',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                      );
-                      throw 'Could not launch $url';
-
-
+                try {
+                  await launch(url);
+                } catch (e) {
+                  Get.snackbar(
+                    'Error',
+                    'Could not launch URL',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                  FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
                 }
               },
               child: Text(

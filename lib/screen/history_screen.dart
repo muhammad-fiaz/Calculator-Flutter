@@ -5,6 +5,7 @@ import 'package:calculator/models/history_model.dart';
 import 'package:calculator/controller/theme_controller.dart';
 import 'package:calculator/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({Key? key}) : super(key: key);
@@ -37,9 +38,17 @@ class HistoryScreen extends StatelessWidget {
           body: FutureBuilder<List<HistoryModel>>(
             future: controller.fetchHistory(),
             builder: (context, AsyncSnapshot<List<HistoryModel>> snapshot) {
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(
                   child: Text('No History Available'),
+                );
+              } else if (snapshot.hasError) {
+                // Handle error using Firebase Crashlytics
+                FirebaseCrashlytics.instance.recordError(snapshot.error!, StackTrace.current);
+                return const Center(
+                  child: Text('Error fetching history. Please try again later.'),
                 );
               } else {
                 return ListView.builder(
@@ -84,10 +93,11 @@ class HistoryScreen extends StatelessWidget {
                               onTap: () {
                                 // Update input field in CalculateController
                                 controller.setInputFromHistory(
-                                    history.expression, history.result);
+                                  history.expression,
+                                  history.result,
+                                );
                                 // Navigate back or handle UI as needed
-                                Navigator.pop(
-                                    context); // Example: Go back after selection
+                                Navigator.pop(context); // Go back after selection
                               },
                             ),
                           ),

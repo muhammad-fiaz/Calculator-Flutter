@@ -3,6 +3,7 @@ import 'package:calculator/models/history_model.dart';
 import 'package:get/get.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'dart:math';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class CalculateController extends GetxController {
   var userInput = "";
@@ -39,8 +40,11 @@ class CalculateController extends GetxController {
       double eval = exp.evaluate(EvaluationType.REAL, cm);
 
       userOutput = eval.toString();
-    } catch (e) {
-      userOutput = "Syntax Error";
+    } catch (e, stackTrace) {
+      userOutput = "Syntax Error"; // Handle the error message as needed
+
+      // Record the error with Firebase Crashlytics
+      FirebaseCrashlytics.instance.recordError(e, stackTrace);
     }
 
     // Save to history
@@ -50,14 +54,12 @@ class CalculateController extends GetxController {
     );
     await databaseHelper.insertHistory(history);
 
-
     update();
   }
 
   Future<List<HistoryModel>> fetchHistory() async {
     return await databaseHelper.fetchAllHistory();
   }
-
 
   void clearInputAndOutput() {
     userInput = "";
@@ -93,4 +95,3 @@ class CalculateController extends GetxController {
     update(); // Notify listeners of the change
   }
 }
-
