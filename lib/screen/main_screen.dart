@@ -86,8 +86,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     var controller = Get.find<CalculateController>();
@@ -205,18 +203,9 @@ class _MainScreenState extends State<MainScreen> {
                           MaterialPageRoute(builder: (context) => const AboutPage()),
                         );
                       } else if (value == 'Help') {
-                        try {
-                          launch('https://github.com/muhammad-fiaz/Calculator-Flutter');
-                        } catch (e) {
-                          Get.snackbar(
-                            'Error',
-                            'Could not launch URL',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                          FirebaseCrashlytics.instance.recordError(e, null);
-                        }
+                        launch('https://github.com/muhammad-fiaz/Calculator-Flutter');
+                      } else if (value == 'Donate') {
+                        launch('https://github.com/sponsors/muhammad-fiaz');
                       }
                     } catch (e, stackTrace) {
                       FirebaseCrashlytics.instance.recordError(e, stackTrace);
@@ -227,6 +216,15 @@ class _MainScreenState extends State<MainScreen> {
                       value: 'About',
                       child: Text(
                         'About',
+                        style: TextStyle(
+                          color: themeController.isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'Donate',
+                      child: Text(
+                        'Donate',
                         style: TextStyle(
                           color: themeController.isDark ? Colors.white : Colors.black,
                         ),
