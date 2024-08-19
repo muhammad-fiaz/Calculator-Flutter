@@ -47,7 +47,7 @@ dependencies:
   firebase_crashlytics: ^4.0.2
   firebase_analytics: ^11.1.0
   firebase_performance: ^0.10.0+2
-  shared_preferences: ^2.2.3
+  shared_preferences: ^2.3.2
 
 
 dev_dependencies:
