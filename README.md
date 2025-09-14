@@ -1,8 +1,9 @@
+
 <div align="center">
 
-# Calculator
+<img width="200" height="200" alt="Calculator Logo" src="https://github.com/user-attachments/assets/15d8dd38-b9fc-484b-9d82-df4f4844afc6" />
 
-![Preview](https://github.com/muhammad-fiaz/Calculator-Flutter/assets/75434191/4570198a-e22d-415a-8ee4-93af6f870f86)
+<h1>🧮 Calculator Flutter</h1>
 
 [![GitHub issues](https://img.shields.io/github/issues/muhammad-fiaz/Calculator-Flutter)](https://github.com/muhammad-fiaz/Calculator-Flutter/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/muhammad-fiaz/Calculator-Flutter)](https://github.com/muhammad-fiaz/Calculator-Flutter/pulls)
@@ -26,6 +27,16 @@
 </div>
 
 Calculator is your essential tool for all your mathematical needs. With a clean and user-friendly interface, this app is designed to make both simple and complex calculations easy and efficient. Whether you're a student, professional, or just need quick calculations on the go, Calculator provides accurate results every time. Powered by Flutter, it offers a smooth and reliable experience across all your devices. Simplify your math with Calculator!
+
+## 📱 ScreenShot
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/40b85ea7-76ba-4ea6-86f2-4dbc08a68b47" width="200" />
+  <img src="https://github.com/user-attachments/assets/e3153eae-7d8c-45af-9b1b-b2ce0de1d4cd" width="200" />
+  <img src="https://github.com/user-attachments/assets/3331ccd6-f5e0-40b3-80bc-238641a232c2" width="200" />
+  <img src="https://github.com/user-attachments/assets/ec7b5b82-903f-4115-8433-eb2283f22477" width="200" />
+</p>
+
 
 ## ✨ Features
 
@@ -291,3 +302,4 @@ If you found this project helpful, please consider:
 ---
 
 **Made with ❤️ using Flutter**
+
