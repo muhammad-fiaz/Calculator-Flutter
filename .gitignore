@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -25,11 +27,21 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
-.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
+/coverage/
+
+# Firebase
+firebase.json
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+**/lib/firebase_options.dart
+**/web/firebase-config.js
+**/windows/runner/firebase_config.h
+**/macos/Runner/firebase_config.h
+**/linux/runner/firebase_config.h
 
 # Symbolication related
 app.*.symbols
@@ -41,6 +53,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-/android/app/google-services.json
-/android/app/keystore.jks
-/android/keystore.properties
