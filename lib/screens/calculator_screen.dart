@@ -4,6 +4,7 @@ import '../providers/calculator_provider.dart';
 import '../providers/history_provider.dart';
 import '../widgets/calculator_display.dart';
 import '../widgets/calculator_button.dart';
+import '../utils/error_handler.dart';
 
 class CalculatorScreen extends StatelessWidget {
   const CalculatorScreen({super.key});
@@ -243,25 +244,93 @@ class CalculatorScreen extends StatelessWidget {
     final calculator = Provider.of<CalculatorProvider>(context, listen: false);
     final history = Provider.of<HistoryProvider>(context, listen: false);
 
-    // Handle special function buttons
-    if (buttonText == 'x²') {
-      calculator.addInput('^2');
-    } else if (buttonText == 'x³') {
-      calculator.addInput('^3');
-    } else {
-      calculator.addInput(buttonText);
-    }
-
-    // Save to history when equals is pressed and we have a valid calculation
-    if (buttonText == '=' &&
-        calculator.lastCalculation != null &&
-        !calculator.hasError) {
-      // Extract expression and result from the lastCalculation format "expression = result"
-      String calculation = calculator.lastCalculation!;
-      List<String> parts = calculation.split(' = ');
-      if (parts.length == 2) {
-        history.addCalculation(parts[0], parts[1]);
+    try {
+      // Handle special function buttons
+      if (buttonText == 'x²') {
+        calculator.addInput('^2');
+      } else if (buttonText == 'x³') {
+        calculator.addInput('^3');
+      } else {
+        calculator.addInput(buttonText);
       }
+
+      // Save to history when equals is pressed and we have a valid calculation
+      if (buttonText == '=' &&
+          calculator.lastCalculation != null &&
+          !calculator.hasError) {
+        // Extract expression and result from the lastCalculation format "expression = result"
+        String calculation = calculator.lastCalculation!;
+        List<String> parts = calculation.split(' = ');
+        if (parts.length == 2) {
+          history.addCalculation(parts[0], parts[1]);
+        }
+      }
+
+      // Show specific error messages for button operations
+      if (calculator.hasError && calculator.result.isNotEmpty) {
+        String errorMessage = calculator.result;
+
+        switch (errorMessage) {
+          case 'Cannot divide by zero':
+            ErrorHandler.showErrorToast(context, 'Cannot divide by zero');
+            break;
+          case 'Invalid Input':
+            ErrorHandler.showErrorToast(
+              context,
+              'Invalid input. Please check your expression.',
+            );
+            break;
+          case 'Format Error':
+            ErrorHandler.showErrorToast(
+              context,
+              'Invalid format. Please correct your input.',
+            );
+            break;
+          case 'Infinity':
+            ErrorHandler.showWarningToast(
+              context,
+              'Result is too large to display',
+            );
+            break;
+          case 'Invalid':
+            ErrorHandler.showErrorToast(context, 'Invalid calculation');
+            break;
+          case 'Number too large':
+            ErrorHandler.showWarningToast(
+              context,
+              'Number is too large to calculate',
+            );
+            break;
+          case 'Invalid expression':
+            ErrorHandler.showErrorToast(
+              context,
+              'Invalid expression. Please check syntax.',
+            );
+            break;
+          case 'Syntax Error':
+            ErrorHandler.showErrorToast(
+              context,
+              'Syntax error. Please check your input.',
+            );
+            break;
+          default:
+            if (errorMessage.contains('Error')) {
+              ErrorHandler.showErrorToast(
+                context,
+                'Calculation error. Please try again.',
+              );
+            }
+            break;
+        }
+      }
+    } catch (e) {
+      ErrorHandler.handleException(
+        e,
+        StackTrace.current,
+        context: context,
+        userMessage: 'Button operation failed. Please try again.',
+        operation: 'Button press: $buttonText',
+      );
     }
   }
 }
