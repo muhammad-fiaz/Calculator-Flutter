@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/calculator_provider.dart';
+import '../utils/error_handler.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -214,6 +216,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
           children: [
             IconButton(
               icon: const Icon(Icons.content_copy),
+              onPressed: () => _copyToClipboard(context, calculation),
+              tooltip: 'Copy to clipboard',
+            ),
+            IconButton(
+              icon: const Icon(Icons.input),
               onPressed: () => _insertIntoCalculator(context, calculation),
               tooltip: 'Insert into calculator',
             ),
@@ -249,10 +256,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
     CalculationEntry calculation,
   ) {
     try {
-      // Safety check
-      if (calculation.displayText.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to insert calculation')),
+      // Safety checks
+      if (calculation.expression.isEmpty && calculation.result.isEmpty) {
+        ErrorHandler.showWarningToast(
+          context,
+          'Unable to insert empty calculation',
         );
         return;
       }
@@ -261,44 +269,62 @@ class _HistoryScreenState extends State<HistoryScreen> {
         context,
         listen: false,
       );
-      calculator.insertFromHistory(calculation.displayText);
+
+      // Use the expression part only for insertion
+      String textToInsert = calculation.expression.isNotEmpty
+          ? calculation.expression
+          : calculation.result;
+
+      if (textToInsert.isEmpty) {
+        ErrorHandler.showWarningToast(context, 'Unable to insert calculation');
+        return;
+      }
+
+      calculator.insertFromHistory(textToInsert);
 
       // Navigate back to calculator
-      Navigator.of(context).pop();
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
 
-      // Show a brief message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Inserted: ${calculation.expression}'),
-          duration: const Duration(seconds: 1),
-        ),
+      // Show a brief success message
+      ErrorHandler.showSuccessToast(
+        context,
+        'Inserted: ${calculation.expression}',
       );
     } catch (e) {
+      ErrorHandler.showErrorToast(
+        context,
+        'Error inserting calculation. Please try again.',
+      );
       if (kDebugMode) {
         print('Error inserting calculation: $e');
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error inserting calculation')),
-      );
     }
   }
 
-  void _deleteCalculation(BuildContext context, CalculationEntry calculation) {
-    final history = Provider.of<HistoryProvider>(context, listen: false);
-    history.deleteCalculation(calculation.id!);
+  void _deleteCalculation(
+    BuildContext context,
+    CalculationEntry calculation,
+  ) async {
+    try {
+      final history = Provider.of<HistoryProvider>(context, listen: false);
+      await history.deleteCalculation(calculation.id!);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Calculation deleted'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            // Add back to history (simplified - in real app you'd store the deleted item)
-            history.addCalculation(calculation.expression, calculation.result);
-          },
-        ),
-      ),
-    );
+      if (context.mounted) {
+        ErrorHandler.showSuccessToast(context, 'Calculation deleted');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ErrorHandler.showErrorToast(
+          context,
+          'Failed to delete calculation. Please try again.',
+        );
+      }
+      if (kDebugMode) {
+        print('Error deleting calculation: $e');
+      }
+    }
   }
 
   void _showClearHistoryDialog(BuildContext context) {
@@ -316,15 +342,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
-                Provider.of<HistoryProvider>(
-                  context,
-                  listen: false,
-                ).clearHistory();
+              onPressed: () async {
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('History cleared')),
-                );
+                try {
+                  await Provider.of<HistoryProvider>(
+                    context,
+                    listen: false,
+                  ).clearHistory();
+
+                  if (context.mounted) {
+                    ErrorHandler.showSuccessToast(context, 'History cleared');
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ErrorHandler.showErrorToast(
+                      context,
+                      'Failed to clear history. Please try again.',
+                    );
+                  }
+                  if (kDebugMode) {
+                    print('Error clearing history: $e');
+                  }
+                }
               },
               child: const Text('Clear'),
             ),
@@ -332,5 +371,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
         );
       },
     );
+  }
+
+  void _copyToClipboard(
+    BuildContext context,
+    CalculationEntry calculation,
+  ) async {
+    try {
+      final textToCopy = '${calculation.expression} = ${calculation.result}';
+      await Clipboard.setData(ClipboardData(text: textToCopy));
+
+      if (context.mounted) {
+        ErrorHandler.showSuccessToast(
+          context,
+          'Calculation copied to clipboard',
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ErrorHandler.showErrorToast(
+          context,
+          'Failed to copy to clipboard. Please try again.',
+        );
+      }
+      if (kDebugMode) {
+        print('Error copying to clipboard: $e');
+      }
+    }
   }
 }

@@ -53,6 +53,7 @@ Calculator is your essential tool for all your mathematical needs. With a clean 
 
 ### 🔧 Technical Features
 - **Firebase Integration**: Performance monitoring and crash analytics
+- **Google Play Integrity API**: Enhanced security and fraud prevention
 - **State Management**: Efficient state management using Provider pattern
 - **Local Storage**: Persistent settings and history using SharedPreferences
 - **Error Handling**: Robust error handling for invalid expressions
@@ -61,10 +62,13 @@ Calculator is your essential tool for all your mathematical needs. With a clean 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Flutter SDK (>=3.9.2)
-- Firebase project configured (for analytics)
+- **Flutter SDK** (>=3.9.2)
+- **Dart SDK** (comes with Flutter)
+- **Android Studio** or **VS Code** with Flutter extensions
+- **Java JDK** (for Android development)
+- **Firebase project** (for analytics and crash reporting)
 
-### Installation
+### Quick Setup
 
 1. **Clone the repository**
    ```bash
@@ -77,10 +81,72 @@ Calculator is your essential tool for all your mathematical needs. With a clean 
    flutter pub get
    ```
 
-3. **Run the app**
+3. **Configure Firebase** (optional)
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Add Android and iOS apps to your project
+   - Download configuration files:
+     - `google-services.json` → `android/app/`
+     - `GoogleService-Info.plist` → `ios/Runner/`
+   - Enable services: Analytics, Crashlytics, Performance Monitoring
+
+4. **Run the app**
    ```bash
+   # Debug mode
    flutter run
+
+   # Release mode (requires signing config)
+   flutter run --release
    ```
+
+### Platform-Specific Setup
+
+#### Android Development
+```bash
+# Check Android setup
+flutter doctor --android-licenses
+
+# Build APK
+flutter build apk --release
+
+# Build App Bundle (recommended for Play Store)
+flutter build appbundle --release
+```
+
+#### iOS Development (macOS only)
+```bash
+# Install iOS dependencies
+cd ios && pod install && cd ..
+
+# Build for iOS
+flutter build ios --release
+```
+
+#### Web Development
+```bash
+# Enable web support
+flutter config --enable-web
+
+# Run on web
+flutter run -d chrome
+
+# Build for web
+flutter build web --release
+```
+
+#### Desktop Development
+```bash
+# Windows
+flutter config --enable-windows-desktop
+flutter run -d windows
+
+# macOS
+flutter config --enable-macos-desktop
+flutter run -d macos
+
+# Linux
+flutter config --enable-linux-desktop
+flutter run -d linux
+```
 
 ## 📐 Calculator Functions
 
@@ -161,15 +227,112 @@ lib/
     └── calculator_display.dart
 ```
 
-## 🔧 Configuration
+## 🏗️ Build & Deployment
 
-### Firebase Setup
-1. Create a Firebase project
-2. Add your app to the Firebase project
-3. Download configuration files:
-   - `google-services.json` for Android
-   - `GoogleService-Info.plist` for iOS
-4. Enable Crashlytics and Performance Monitoring
+### Android Signing Configuration
+
+The project includes pre-configured Android signing for release builds:
+
+1. **Keystore Location**: `android/app/upload-keystore.jks`
+2. **Signing Properties**: `android/app/signing.properties` (gitignored for security)
+3. **Configuration**: Automatically loaded in `android/app/build.gradle.kts`
+
+#### Setting up Signing for Release
+
+The signing configuration is already set up. For custom keystores:
+
+1. **Generate new keystore**:
+   ```bash
+   cd android/app
+   keytool -genkey -v -keystore your-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias your-alias
+   ```
+
+2. **Update signing.properties**:
+   ```properties
+   storeFile=your-keystore.jks
+   storePassword=your-store-password
+   keyAlias=your-alias
+   keyPassword=your-key-password
+   ```
+
+3. **Update build.gradle.kts** if needed (already configured)
+
+### Build Commands
+
+```bash
+# Debug builds
+flutter build apk                    # Android APK (debug)
+flutter build ios --debug           # iOS (debug)
+flutter build web                   # Web (debug)
+
+# Release builds
+flutter build apk --release         # Android APK (signed)
+flutter build appbundle --release   # Android App Bundle (recommended)
+flutter build ios --release         # iOS (signed)
+flutter build web --release         # Web (production)
+
+# Platform-specific
+flutter build windows --release     # Windows
+flutter build macos --release       # macOS
+flutter build linux --release       # Linux
+```
+
+### Deployment
+
+#### Google Play Store
+1. **Build App Bundle**:
+   ```bash
+   flutter build appbundle --release
+   ```
+
+2. **Upload to Play Console**:
+   - Go to [Google Play Console](https://play.google.com/console/)
+   - Create new release
+   - Upload `build/app/outputs/bundle/release/app-release.aab`
+
+3. **Configure Play Integrity** (already integrated):
+   - Enable API in Google Cloud Console
+   - Configure integrity tokens in Play Console
+
+#### Apple App Store
+1. **Build for iOS**:
+   ```bash
+   flutter build ios --release
+   ```
+
+2. **Archive in Xcode**:
+   - Open `ios/Runner.xcworkspace`
+   - Product → Archive
+   - Upload to App Store Connect
+
+#### Web Deployment
+1. **Build web**:
+   ```bash
+   flutter build web --release
+   ```
+
+2. **Deploy to hosting**:
+   ```bash
+   firebase deploy --only hosting
+   # or upload build/web contents to your web server
+   ```
+
+#### Usage in Code
+```dart
+import 'package:calculator/play_integrity_service.dart';
+
+// Check device integrity
+bool isTrustworthy = await PlayIntegrityService.isDeviceTrustworthy();
+
+// Get detailed integrity information
+String details = await PlayIntegrityService.getIntegrityDetails();
+```
+
+#### Security Benefits
+- **Device Integrity**: Detects rooted/jailbroken devices
+- **App Recognition**: Verifies app authenticity
+- **Fraud Prevention**: Protects against unauthorized modifications
+- **Compliance**: Helps meet security requirements
 
 ## 🎨 App Logo & Icons
 
@@ -250,16 +413,153 @@ Place the following files in the `assets/images/` directory:
 
 ## 🧪 Testing
 
+### Running Tests
+
 ```bash
 # Run all tests
 flutter test
 
-# Run with coverage
+# Run tests with coverage
 flutter test --coverage
 
-# Analyze code quality
-flutter analyze
+# Run specific test file
+flutter test test/calculator_provider_test.dart
+
+# Run tests in watch mode (re-runs on file changes)
+flutter test --watch
+
+# Run integration tests
+flutter test integration_test/
 ```
+
+### Test Coverage
+
+```bash
+# Generate coverage report
+flutter test --coverage
+
+# View coverage report (requires lcov)
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+```
+
+### Code Quality
+
+```bash
+# Analyze code for issues
+flutter analyze
+
+# Format code
+dart format .
+
+# Check for unused files
+flutter pub run dart_code_metrics:metrics check-unused-files lib
+
+# Run all quality checks
+flutter analyze && flutter test
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### Build Issues
+
+**Android Build Fails**
+```bash
+# Clean and rebuild
+flutter clean
+flutter pub get
+flutter build apk --debug
+
+# Check Java version
+java -version
+
+# Accept Android licenses
+flutter doctor --android-licenses
+```
+
+**iOS Build Fails**
+```bash
+# Clean iOS build
+cd ios && rm -rf Pods/ Podfile.lock && cd ..
+flutter clean
+flutter pub get
+cd ios && pod install && cd ..
+flutter build ios
+```
+
+**Firebase Configuration Issues**
+```bash
+# Check Firebase config files exist
+ls android/app/google-services.json
+ls ios/Runner/GoogleService-Info.plist
+
+# Re-download Firebase config if missing
+# Go to Firebase Console → Project Settings → Your apps
+```
+
+#### Runtime Issues
+
+**App Crashes on Startup**
+- Check device logs: `flutter logs`
+- Verify Firebase configuration
+- Check for missing permissions
+- Ensure minimum SDK requirements are met
+
+**Calculation Errors**
+- Check expression syntax
+- Verify mathematical operations are supported
+- Review error logs in debug console
+
+**Database Issues**
+- Clear app data to reset local database
+- Check available storage space
+- Verify database file permissions
+
+### Debug Commands
+
+```bash
+# View device logs
+flutter logs
+
+# Run in verbose mode
+flutter run --verbose
+
+# Check Flutter doctor
+flutter doctor -v
+
+# Clean all build artifacts
+flutter clean
+rm -rf pubspec.lock
+flutter pub get
+```
+
+### Performance Issues
+
+- **Slow startup**: Check Firebase initialization
+- **UI lag**: Profile with Flutter DevTools
+- **Memory issues**: Monitor with Android Profiler/iOS Instruments
+- **Battery drain**: Check background services
+
+## 📊 Project Metrics
+
+### Code Quality
+- **Test Coverage**: Target >80%
+- **Code Analysis**: Zero flutter analyze warnings
+- **Platform Support**: 6 platforms (Android, iOS, Web, Windows, macOS, Linux)
+
+### Performance
+- **Startup Time**: <2 seconds (cold start)
+- **Memory Usage**: <50MB (average)
+- **Battery Impact**: Minimal background usage
+- **Smooth Animations**: 60 FPS target
+
+### Security
+- **Code Obfuscation**: Enabled in release builds
+- **Certificate Pinning**: Firebase security
+- **Play Integrity**: Device verification
+- **Secure Storage**: Encrypted local data
 
 ## 📱 Platform Support
 

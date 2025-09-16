@@ -74,9 +74,23 @@ class HistoryProvider with ChangeNotifier {
       );
 
       await loadHistory();
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      if (kDebugMode) {
+        print('Database error initializing: $e');
+      }
+      // Initialize with empty history if database fails
+      _history = [];
+      notifyListeners();
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error initializing database: $e');
+      }
+      // Initialize with empty history if database fails
+      _history = [];
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Unexpected error initializing database: $e');
       }
       // Initialize with empty history if database fails
       _history = [];
@@ -100,9 +114,23 @@ class HistoryProvider with ChangeNotifier {
 
       _history = maps.map((map) => CalculationEntry.fromMap(map)).toList();
       notifyListeners();
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      if (kDebugMode) {
+        print('Database error loading history: $e');
+      }
+      // Initialize with empty history if loading fails
+      _history = [];
+      notifyListeners();
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error loading history: $e');
+      }
+      // Initialize with empty history if loading fails
+      _history = [];
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Unexpected error loading history: $e');
       }
       // Initialize with empty history if loading fails
       _history = [];
@@ -156,9 +184,39 @@ class HistoryProvider with ChangeNotifier {
       }
 
       notifyListeners();
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      if (kDebugMode) {
+        print('Database error adding calculation: $e');
+      }
+      // Still add to memory as fallback
+      final calculation = CalculationEntry(
+        expression: expression,
+        result: result,
+        timestamp: DateTime.now(),
+      );
+      _history.insert(0, calculation);
+      if (_history.length > 100) {
+        _history = _history.sublist(0, 100);
+      }
+      notifyListeners();
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error adding calculation: $e');
+      }
+      // Still add to memory as fallback
+      final calculation = CalculationEntry(
+        expression: expression,
+        result: result,
+        timestamp: DateTime.now(),
+      );
+      _history.insert(0, calculation);
+      if (_history.length > 100) {
+        _history = _history.sublist(0, 100);
+      }
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Unexpected error adding calculation: $e');
       }
       // Still add to memory as fallback
       final calculation = CalculationEntry(
@@ -181,10 +239,27 @@ class HistoryProvider with ChangeNotifier {
       await _database!.delete('calculations');
       _history.clear();
       notifyListeners();
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      if (kDebugMode) {
+        print('Database error clearing history: $e');
+      }
+      // Clear local history even if database operation fails
+      _history.clear();
+      notifyListeners();
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error clearing history: $e');
       }
+      // Clear local history even if database operation fails
+      _history.clear();
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Unexpected error clearing history: $e');
+      }
+      // Clear local history even if database operation fails
+      _history.clear();
+      notifyListeners();
     }
   }
 
@@ -228,10 +303,27 @@ class HistoryProvider with ChangeNotifier {
 
       _history.removeWhere((entry) => entry.id == id);
       notifyListeners();
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      if (kDebugMode) {
+        print('Database error deleting calculation: $e');
+      }
+      // Remove from local list even if database operation fails
+      _history.removeWhere((entry) => entry.id == id);
+      notifyListeners();
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error deleting calculation: $e');
       }
+      // Remove from local list even if database operation fails
+      _history.removeWhere((entry) => entry.id == id);
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Unexpected error deleting calculation: $e');
+      }
+      // Remove from local list even if database operation fails
+      _history.removeWhere((entry) => entry.id == id);
+      notifyListeners();
     }
   }
 
