@@ -17,16 +17,13 @@
 [![GitHub sponsor](https://img.shields.io/badge/sponsor-Muhammad%20Fiaz-blue)](https://github.com/sponsors/muhammad-fiaz)
 [![Get it on Google Play](https://img.shields.io/badge/Get%20it%20on-Google%20Play-brightgreen)](https://play.google.com/store/apps/details?id=dev.fiaz.calculator)
 
-<div align="center">
-<h3> Join our Discord Community: </h3>
-
-[![Join Our Discord](https://img.shields.io/badge/Discord-Join_us!-blue?style=flat&logo=discord)](https://discord.com/invite/zvqm4VZ3Pk)
-
-</div>
 <br/>
 </div>
 
 Calculator is your essential tool for all your mathematical needs. With a clean and user-friendly interface, this app is designed to make both simple and complex calculations easy and efficient. Whether you're a student, professional, or just need quick calculations on the go, Calculator provides accurate results every time. Powered by Flutter, it offers a smooth and reliable experience across all your devices. Simplify your math with Calculator!
+
+> [!NOTE]
+> **Project Update:** This app has been remade as a native Android alternative with Jetpack Compose and Material Design 3. Check out the new repository here: **[calculator-android](https://github.com/muhammad-fiaz/calculator-android)**.
 
 ## 📱 ScreenShot
 
